@@ -126,9 +126,9 @@ class TestCommand extends Command
         $ossClient = AliyunOss::getClient();
         // $exist = AliyunOss::doesObjectExist($ossClient, 'solitairearena');
         $file = AliyunOss::listObjects($ossClient);
-        $uploaddir = AliyunOss::uploadDir($ossClient, 'test/db/2021-09-17', '/mnt/d/www/skills-backup/storage/app/test/db/2021-09-17');
+        // $uploaddir = AliyunOss::uploadDir($ossClient, 'test/db/2021-09-17', '/mnt/d/www/skills-backup/storage/app/test/db/2021-09-17');
         dump($file);
-        dump($uploaddir);
+        // dump($uploaddir);
     }
 
     public function test5()

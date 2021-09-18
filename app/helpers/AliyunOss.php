@@ -93,10 +93,18 @@ class AliyunOss
      */
     public static function listObjects($ossClient)
     {
-        $options = array(
-        );
+        // $prefix = 'test';
+        // $delimiter = '/';
+        // $nextMarker = '';
+        // $maxkeys = 1000;
+        // $options = array(
+        //     'delimiter' => $delimiter,
+        //     'prefix' => $prefix,
+        //     'max-keys' => $maxkeys,
+        //     'marker' => $nextMarker,
+        // );
         try {
-            $listObjectInfo = $ossClient->listObjects(self::$bucket, $options);
+            $listObjectInfo = $ossClient->listObjects(self::$bucket, $options =[]);
         } catch (OssException $e) {
 
             return;

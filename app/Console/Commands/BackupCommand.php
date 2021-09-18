@@ -64,7 +64,9 @@ class BackupCommand extends Command
     {
         $local = $this->localBackup($app);
         if ($local){
-            $this->aliyunBackup($app);
+            $aliUpload = $this->aliyunBackup($app);
+            $awsUpload = $this->awsBackup($app);
+            dump($aliUpload, $awsUpload);
         }
         
     }
@@ -72,29 +74,31 @@ class BackupCommand extends Command
     public function localBackup($app)
     {
         try{
-            $dir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
+            $this->localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
             $user = $app['user'];
             $host = $app['host'];
             $password = $app['password'];
             $database = $app['database'];
             $table = $app['table'];
             $tables = implode(' ', $table);
-            if (!is_dir($dir)) {
-                mkdir($dir, 0777, true);
+            if (!is_dir($this->localDir)) {
+                mkdir($this->localDir, 0777, true);
             }
-            $file = $dir . $app['name'] . Carbon::now()->format('-Y-m-d-H:i:s') . '.sql';
-            $nodatafile = $dir . $app['name'] . '-no-data' . Carbon::now()->format('-Y-m-d-H:i:s') . '.sql';
+            $this->file =  $app['name'] . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
+            $this->nodatafile = $app['name'] . '-no-data' . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
+            $this->filePath = $this->localDir . $app['name'] . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
+            $this->nodatafilePath = $this->localDir . $app['name'] . '-no-data' . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
             // if (empty($database) || empty($tables) )
             // dd("mysqldump -F -u$user -h$host -p$password $database > $file");
-            $fp = popen("mysqldump -F -u$user -h$host -p$password -B $database --tables $tables> $file", "r");
-            $fp = popen("mysqldump -F -d -u$user -h$host -p$password -B $database > $nodatafile", "r");
+            $fp = popen("mysqldump -F -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
+            $fp = popen("mysqldump -F -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
 
             $rs = '';
             while (!feof($fp)) {
                 $rs .= fread($fp, 1024);
             }
             pclose($fp);
-            if (!file_exists($file) || !file_exists($nodatafile)){
+            if (!file_exists($this->filePath) || !file_exists($this->nodatafilePath)){
                 dump("backup {$app['name']} mysql fail ---" . $rs);
                 throw new Exception("backup {$app['name']} mysql fail ---". $rs);
             }
@@ -108,15 +112,21 @@ class BackupCommand extends Command
 
     public function aliyunBackup($app)
     {
-        $localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
-        $buketDir = $app['dir'] . $this->date;
+        // $this->localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
+        // $buketDir = $app['dir'] . $this->date;
         $ossClient = AliyunOss::getClient();
-        $uploadDir = AliyunOss::uploadDir($ossClient, $buketDir, $localDir);
-        if (!$uploadDir){
-            Log::info('aliyun back fail');
-        }
-        dump($uploadDir);
-        
+        // $uploadDir = AliyunOss::uploadDir($ossClient, $buketDir, $localDir);
+        $this->cl_file = $app['dir'].$this->date.'/'.$this->file;
+        $this->cl_nodatafile = $app['dir'].$this->date.'/'.$this->nodatafile;
+        $uploadFile= AliyunOss::uploadFile($ossClient,$this->cl_file, $this->filePath);
+        $uploadNodatafile= AliyunOss::uploadFile($ossClient,$this->cl_nodatafile, $this->nodatafilePath);
+        return [$uploadFile , $uploadNodatafile];
     }
-    
+
+    public function awsBackup($app)
+    {
+        $uploadFile = Storage::disk('s3')->put($this->cl_file, $this->filePath);
+        $uploadNodatafile = Storage::disk('s3')->put($this->cl_nodatafile, $this->nodatafilePath);
+        return [$uploadFile, $uploadNodatafile];
+    }
 }
