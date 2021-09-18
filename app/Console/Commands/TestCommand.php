@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\helpers\AliyunOss;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+use OSS\Core\OssException;
 
 class TestCommand extends Command
 {
@@ -117,5 +119,18 @@ class TestCommand extends Command
 
         dump($rs);
     }
+
+    public function test4()
+    {
+        $ossClient = AliyunOss::getClient();
+        // $exist = AliyunOss::doesObjectExist($ossClient, 'solitairearena');
+        $file = AliyunOss::listObjects($ossClient);
+        $uploaddir = AliyunOss::uploadDir($ossClient, 'test/db/2021-09-17', '/mnt/d/www/skills-backup/storage/app/test/db/2021-09-17');
+        dump($file);
+        dump($uploaddir);
+    }
+
+
+
 
 }

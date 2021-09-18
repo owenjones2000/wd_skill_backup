@@ -25,6 +25,10 @@ class AliyunOss
     private static $endpoint = null;
     private static $bucket = null;
 
+    public function __construct()
+    {
+        self::init();
+    }
     /**
      * 初始化配置
      */
@@ -62,5 +66,71 @@ class AliyunOss
     {
         self::init();
         return self::$bucket;
+    }
+
+    /**
+     * Check whether an object exists
+     *
+     * @param OssClient $ossClient OssClient instance
+     * @param string $bucket bucket name
+     * @return null
+     */
+    public static function doesObjectExist($ossClient, $object)
+    {
+        try {
+            $exist = $ossClient->doesObjectExist(self::$bucket, $object);
+        } catch (OssException $e) {
+            Log::error($e->getMessage() . "\n");
+            return;
+        }
+        return $exist;
+    }
+
+    /**
+     * Lists all files and folders in the bucket. 
+     * Note if there's more items than the max-keys specified, the caller needs to use the nextMarker returned as the value for the next call's maker paramter.
+     * Loop through all the items returned from ListObjects.
+     *
+     * @param OssClient $ossClient OssClient instance
+     * @param string $bucket bucket name
+     * @return null
+     */
+    public static function listObjects($ossClient)
+    {
+        $options = array(
+        );
+        try {
+            $listObjectInfo = $ossClient->listObjects(self::$bucket, $options);
+        } catch (OssException $e) {
+
+            return;
+        }
+        $objectList = $listObjectInfo->getObjectList(); // object list
+        // $prefixList = $listObjectInfo->getPrefixList(); // directory list
+        return $listObjectInfo;
+    }
+
+    public static function uploadDir($ossClient, $prefix , $localDirectory)
+    {
+        try {
+            $res = $ossClient->uploadDir(self::$bucket, $prefix, $localDirectory);
+        } catch (OssException $e) {
+            Log::error($e->getMessage() . "\n");
+            return false;
+        }
+        return $res;
+    }
+
+    public static function uploadFile($ossClient, $object, $filePath)
+    {
+        $options = array();
+
+        try {
+            $res = $ossClient->uploadFile(self::$bucket, $object, $filePath, $options);
+        } catch (OssException $e) {
+            Log::error($e->getMessage() . "\n");
+            return false;
+        }
+        return $res;
     }
 }
