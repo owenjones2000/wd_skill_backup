@@ -69,7 +69,6 @@ class AliyunOss
     }
 
     /**
-     * Check whether an object exists
      *
      * @param OssClient $ossClient OssClient instance
      * @param string $bucket bucket name
@@ -87,9 +86,6 @@ class AliyunOss
     }
 
     /**
-     * Lists all files and folders in the bucket. 
-     * Note if there's more items than the max-keys specified, the caller needs to use the nextMarker returned as the value for the next call's maker paramter.
-     * Loop through all the items returned from ListObjects.
      *
      * @param OssClient $ossClient OssClient instance
      * @param string $bucket bucket name
@@ -110,6 +106,12 @@ class AliyunOss
         return $listObjectInfo;
     }
 
+    /**
+     *
+     * @param OssClient $ossClient OssClient
+     * @param string $bucket bucket name
+     *
+     */
     public static function uploadDir($ossClient, $prefix , $localDirectory)
     {
         try {
@@ -121,6 +123,12 @@ class AliyunOss
         return $res;
     }
 
+    /**
+     *
+     * @param OssClient $ossClient OssClient instance
+     * @param string $bucket bucket name
+     * @return null
+     */
     public static function uploadFile($ossClient, $object, $filePath)
     {
         $options = array();
