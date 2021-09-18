@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Storage;
 use OSS\Core\OssException;
 
 class TestCommand extends Command
@@ -128,6 +129,15 @@ class TestCommand extends Command
         $uploaddir = AliyunOss::uploadDir($ossClient, 'test/db/2021-09-17', '/mnt/d/www/skills-backup/storage/app/test/db/2021-09-17');
         dump($file);
         dump($uploaddir);
+    }
+
+    public function test5()
+    {
+        // $res = Storage::disk('s3')->allDirectories();
+        // $res = Storage::disk('s3')->directories();
+        $res = Storage::disk('s3')->allFiles();
+        // $res = Storage::disk('s3')->put('test/db/2021-09-18/test-2021-09-18-03-23-07.sql', '/mnt/d/www/skills-backup/storage/app/test/db/2021-09-18/test-2021-09-18-03-23-07.sql');
+        dd($res);
     }
 
 

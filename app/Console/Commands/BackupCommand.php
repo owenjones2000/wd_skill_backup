@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\helpers\AliyunOss;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -61,35 +62,48 @@ class BackupCommand extends Command
 
     public function mysqlBackup($app)
     {
-        $this->localBackup($app);
-        $this->aliyunBackup($app);
+        $local = $this->localBackup($app);
+        if ($local){
+            $this->aliyunBackup($app);
+        }
+        
     }
 
     public function localBackup($app)
     {
-        $dir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
-        $user = $app['user'];
-        $host = $app['host'];
-        $password = $app['password'];
-        $database = $app['database'];
-        $table = $app['table'];
-        $tables = implode(' ', $table);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-        $file = $dir . $app['name'] . '.sql';
-        $nodatafile = $dir . $app['name'] . '-no-data.sql';
-        // dd("mysqldump -F -u$user -h$host -p$password $database > $file");
-        $fp = popen("mysqldump -F -u$user -h$host -p$password -B $database --tables $tables> $file", "r");
-        $fp = popen("mysqldump -F -d -u$user -h$host -p$password -B $database > $nodatafile", "r");
+        try{
+            $dir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
+            $user = $app['user'];
+            $host = $app['host'];
+            $password = $app['password'];
+            $database = $app['database'];
+            $table = $app['table'];
+            $tables = implode(' ', $table);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            $file = $dir . $app['name'] . Carbon::now()->format('-Y-m-d-H:i:s') . '.sql';
+            $nodatafile = $dir . $app['name'] . '-no-data' . Carbon::now()->format('-Y-m-d-H:i:s') . '.sql';
+            // if (empty($database) || empty($tables) )
+            // dd("mysqldump -F -u$user -h$host -p$password $database > $file");
+            $fp = popen("mysqldump -F -u$user -h$host -p$password -B $database --tables $tables> $file", "r");
+            $fp = popen("mysqldump -F -d -u$user -h$host -p$password -B $database > $nodatafile", "r");
 
-        $rs = '';
-        while (!feof($fp)) {
-            $rs .= fread($fp, 1024);
+            $rs = '';
+            while (!feof($fp)) {
+                $rs .= fread($fp, 1024);
+            }
+            pclose($fp);
+            if (!file_exists($file) || !file_exists($nodatafile)){
+                dump("backup {$app['name']} mysql fail ---" . $rs);
+                throw new Exception("backup {$app['name']} mysql fail ---". $rs);
+            }
+            
+            return true;
+        } catch (Exception $e) {
+            Log::error($e);     
         }
-        pclose($fp);
-
-        dump($rs);
+        return false;
     }
 
     public function aliyunBackup($app)
@@ -104,4 +118,5 @@ class BackupCommand extends Command
         dump($uploadDir);
         
     }
+    
 }
