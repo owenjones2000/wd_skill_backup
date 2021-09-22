@@ -28,8 +28,8 @@
         'host' => env('TEST_DB_HOST'),
         'user' => env('TEST_DB_USER'),
         'password' => env('TEST_DB_PASSWORD'),
-        'database' => 'attributes',
-        'table' => [ 'bundles', 'network_accounts'],
+        'database' => 'zxbingo',
+        'table' => ['devices', 'users'],
         'dir' => 'test/db/',
     ],
     // 'database' => [
