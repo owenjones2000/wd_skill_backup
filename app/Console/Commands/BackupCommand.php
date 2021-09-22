@@ -107,7 +107,8 @@ class BackupCommand extends Command
             
             return true;
         } catch (Exception $e) {
-            Log::error($e);     
+            Log::error($e);
+            dump($e);
         }
         return false;
     }
@@ -126,6 +127,7 @@ class BackupCommand extends Command
             return [$uploadFile, $uploadNodatafile];
         } catch (Exception $e) {
             Log::error($e);     
+            dump($e);
         }
         return false;
     }
@@ -137,7 +139,8 @@ class BackupCommand extends Command
             $uploadNodatafile = Storage::disk('s3')->put($this->cl_nodatafile, file_get_contents($this->nodatafilePath));
             return [$uploadFile, $uploadNodatafile];
         } catch (Exception $e) {
-            Log::error($e);     
+            Log::error($e);
+            dump($e); 
         }
         return false;
     }
