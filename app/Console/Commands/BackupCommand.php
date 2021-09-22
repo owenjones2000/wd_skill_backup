@@ -62,6 +62,7 @@ class BackupCommand extends Command
 
     public function mysqlBackup($app)
     {
+        
         $local = $this->localBackup($app);
         if ($local){
             $aliUpload = $this->aliyunBackup($app);
@@ -113,21 +114,31 @@ class BackupCommand extends Command
 
     public function aliyunBackup($app)
     {
-        // $this->localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
-        // $buketDir = $app['dir'] . $this->date;
-        $ossClient = AliyunOss::getClient();
-        // $uploadDir = AliyunOss::uploadDir($ossClient, $buketDir, $localDir);
-        $this->cl_file = $app['dir'].$this->date.'/'.$this->file;
-        $this->cl_nodatafile = $app['dir'].$this->date.'/'.$this->nodatafile;
-        $uploadFile= AliyunOss::uploadFile($ossClient,$this->cl_file, $this->filePath);
-        $uploadNodatafile= AliyunOss::uploadFile($ossClient,$this->cl_nodatafile, $this->nodatafilePath);
-        return [$uploadFile , $uploadNodatafile];
+        try{
+            // $this->localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
+            // $buketDir = $app['dir'] . $this->date;
+            $ossClient = AliyunOss::getClient();
+            // $uploadDir = AliyunOss::uploadDir($ossClient, $buketDir, $localDir);
+            $this->cl_file = $app['dir'] . $this->date . '/' . $this->file;
+            $this->cl_nodatafile = $app['dir'] . $this->date . '/' . $this->nodatafile;
+            $uploadFile = AliyunOss::uploadFile($ossClient, $this->cl_file, $this->filePath);
+            $uploadNodatafile = AliyunOss::uploadFile($ossClient, $this->cl_nodatafile, $this->nodatafilePath);
+            return [$uploadFile, $uploadNodatafile];
+        } catch (Exception $e) {
+            Log::error($e);     
+        }
+        return false;
     }
 
     public function awsBackup($app)
     {
-        $uploadFile = Storage::disk('s3')->put($this->cl_file, file_get_contents($this->filePath));
-        $uploadNodatafile = Storage::disk('s3')->put($this->cl_nodatafile, file_get_contents($this->nodatafilePath));
-        return [$uploadFile, $uploadNodatafile];
+        try{
+            $uploadFile = Storage::disk('s3')->put($this->cl_file, file_get_contents($this->filePath));
+            $uploadNodatafile = Storage::disk('s3')->put($this->cl_nodatafile, file_get_contents($this->nodatafilePath));
+            return [$uploadFile, $uploadNodatafile];
+        } catch (Exception $e) {
+            Log::error($e);     
+        }
+        return false;
     }
 }
