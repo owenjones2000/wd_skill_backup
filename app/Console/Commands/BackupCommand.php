@@ -91,8 +91,8 @@ class BackupCommand extends Command
             $this->nodatafilePath = $this->localDir . $app['name'] . '-no-data' . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
             // if (empty($database) || empty($tables) )
             // dd("mysqldump -F -u$user -h$host -p$password $database > $file");
-            $fp = popen("mysqldump --set-gtid-purged=off -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
-            $fp = popen("mysqldump --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
+            $fp = popen("mysqldump --column-statistics=0 --set-gtid-purged=off -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
+            $fp = popen("mysqldump --column-statistics=0 --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
             dump("mysqldump --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}");
 
             $rs = '';
