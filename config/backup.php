@@ -2,10 +2,10 @@
 
  return [
     'bingoforcash'=> [
-        'name' => '',
-        'host' => '',
-        'user' => '',
-        'password' => '',
+        'name' => 'bingoforcash',
+        'host' => env('BINGO_DB_HOST'),
+        'user' => env('BINGO_DB_USER'),
+        'password' => env('BINGO_DB_PASSWORD'),
         'database' => '',
         'table' =>[
 
@@ -13,10 +13,10 @@
         'dir' => 'bingoforcash/db/',
     ],
     'solitairearena'=> [
-        'name' => '',
-        'host' => '',
-        'user' => '',
-        'password' => '',
+        'name' => 'solitairearena',
+        'host' => env('SOLITAIRE_DB_HOST'),
+        'user' => env('SOLITAIRE_DB_USER'),
+        'password' => env('SOLITAIRE_DB_PASSWORD'),
         'database' => '',
         'table' =>[
 
@@ -25,9 +25,9 @@
     ],
     'test'=> [
         'name' => 'test',
-        'host' => '127.0.0.1',
-        'user' => 'root',
-        'password' => 'fd2f909a7c34a235',
+        'host' => env('TEST_DB_HOST'),
+        'user' => env('TEST_DB_USER'),
+        'password' => env('TEST_DB_PASSWORD'),
         'database' => 'attributes',
         'table' => [ 'bundles', 'network_accounts'],
         'dir' => 'test/db/',

@@ -125,8 +125,8 @@ class BackupCommand extends Command
 
     public function awsBackup($app)
     {
-        $uploadFile = Storage::disk('s3')->put($this->cl_file, $this->filePath);
-        $uploadNodatafile = Storage::disk('s3')->put($this->cl_nodatafile, $this->nodatafilePath);
+        $uploadFile = Storage::disk('s3')->put($this->cl_file, file_get_contents($this->filePath));
+        $uploadNodatafile = Storage::disk('s3')->put($this->cl_nodatafile, file_get_contents($this->nodatafilePath));
         return [$uploadFile, $uploadNodatafile];
     }
 }
