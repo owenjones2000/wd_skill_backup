@@ -93,7 +93,6 @@ class BackupCommand extends Command
             // dd("mysqldump -F -u$user -h$host -p$password $database > $file");
             $fp = popen("mysqldump --column-statistics=0 --set-gtid-purged=off -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
             $fp = popen("mysqldump --column-statistics=0 --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
-            dump("mysqldump --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}");
 
             $rs = '';
             while (!feof($fp)) {
