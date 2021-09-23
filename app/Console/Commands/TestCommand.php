@@ -148,7 +148,7 @@ class TestCommand extends Command
         $password = $app['password'];
         $database = $app['database'];
         $table = $app['table'];
-        $localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
+        $localDir = Storage::disk('local')->path($app['dir'] . Carbon::now()->format('Y-m-d')) . '/';
         
         foreach ($table as $key => $value) {
             $this->filePath = $localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
