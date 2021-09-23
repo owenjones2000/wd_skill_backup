@@ -6,7 +6,7 @@
         'host' => env('BINGO_DB_HOST'),
         'user' => env('BINGO_DB_USER'),
         'password' => env('BINGO_DB_PASSWORD'),
-        'database' => '',
+        'database' => 'bingocash',
         'table' =>[
             "activities",
             "black_list_users",
@@ -71,7 +71,7 @@
         'host' => env('SOLITAIRE_DB_HOST'),
         'user' => env('SOLITAIRE_DB_USER'),
         'password' => env('SOLITAIRE_DB_PASSWORD'),
-        'database' => '',
+        'database' => 'solitaire',
         'table' =>[
             'users',
             'users_balance',
