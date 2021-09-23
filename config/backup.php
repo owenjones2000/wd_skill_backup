@@ -1,13 +1,13 @@
 <?php
 
- return [
-    'bingoforcash'=> [
+return [
+    'bingoforcash' => [
         'name' => 'bingoforcash',
         'host' => env('BINGO_DB_HOST'),
         'user' => env('BINGO_DB_USER'),
         'password' => env('BINGO_DB_PASSWORD'),
         'database' => 'bingocash',
-        'table' =>[
+        'table' => [
             "activities",
             "black_list_users",
             "cash_apply",
@@ -66,13 +66,13 @@
         ],
         'dir' => 'bingoforcash/db/',
     ],
-    'solitairearena'=> [
+    'solitairearena' => [
         'name' => 'solitairearena',
         'host' => env('SOLITAIRE_DB_HOST'),
         'user' => env('SOLITAIRE_DB_USER'),
         'password' => env('SOLITAIRE_DB_PASSWORD'),
         'database' => 'solitaire',
-        'table' =>[
+        'table' => [
             'users',
             'users_balance',
             'users_auth',
@@ -104,7 +104,7 @@
         ],
         'dir' => 'solitairearena/db/',
     ],
-    'test'=> [
+    'test' => [
         'name' => 'test',
         'host' => env('TEST_DB_HOST'),
         'user' => env('TEST_DB_USER'),
@@ -117,4 +117,4 @@
 
     // ],
 
- ]
+];
