@@ -140,6 +140,29 @@ class TestCommand extends Command
         dd($res);
     }
 
+    public function test6()
+    {
+        $app = config('backup')['bingoforcash'];
+        $user = $app['user'];
+        $host = $app['host'];
+        $password = $app['password'];
+        $database = $app['database'];
+        $table = $app['table'];
+        $localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
+        
+        foreach ($table as $key => $value) {
+            $this->filePath = $localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
+            $fp = popen("mysqldump --column-statistics=0 --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $value> {$this->filePath} ", "r");
+        }
+        
+
+        $rs = '';
+        while (!feof($fp)) {
+            $rs .= fread($fp, 1024);
+        }
+        pclose($fp);
+    }
+
 
 
 
