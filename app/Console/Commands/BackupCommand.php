@@ -6,6 +6,7 @@ use App\helpers\AliyunOss;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -134,8 +135,10 @@ class BackupCommand extends Command
     public function awsBackup($app)
     {
         try{
-            $uploadFile = Storage::disk('s3')->put($this->cl_file, file_get_contents($this->filePath));
-            $uploadNodatafile = Storage::disk('s3')->put($this->cl_nodatafile, file_get_contents($this->nodatafilePath));
+            // $uploadFile = Storage::disk('s3')->put($this->cl_file, file_get_contents($this->filePath));
+            $uploadFile = Storage::disk('s3')->putFileAs($app['dir'] . $this->date, new File($this->filePath), $this->file);
+            // $uploadNodatafile = Storage::disk('s3')->put($this->cl_nodatafile, file_get_contents($this->nodatafilePath));
+            $uploadNodatafile = Storage::disk('s3')->putFileAs($app['dir'] . $this->date, new File($this->nodatafilePath), $this->nodatafile);
             return [$uploadFile, $uploadNodatafile];
         } catch (Exception $e) {
             Log::error($e);

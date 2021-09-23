@@ -60,7 +60,6 @@ return [
             "user_small_games",
             "user_source",
             "user_suggests",
-            "user_transactions",
             "user_xp",
             "white_list_users",
         ],
