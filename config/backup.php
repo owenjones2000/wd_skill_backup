@@ -6,7 +6,7 @@ return [
         'host' => env('BINGO_DB_HOST'),
         'user' => env('BINGO_DB_USER'),
         'password' => env('BINGO_DB_PASSWORD'),
-        'database' => 'bingocash',
+        'database' => env('TEST_DB_DATABASE', 'bingocash'),
         'table' => [
             "activities",
             "black_list_users",
@@ -70,7 +70,7 @@ return [
         'host' => env('SOLITAIRE_DB_HOST'),
         'user' => env('SOLITAIRE_DB_USER'),
         'password' => env('SOLITAIRE_DB_PASSWORD'),
-        'database' => 'solitaire',
+        'database' => env('TEST_DB_DATABASE', 'solitaire'),
         'table' => [
             'users',
             'users_balance',
@@ -108,7 +108,7 @@ return [
         'host' => env('TEST_DB_HOST'),
         'user' => env('TEST_DB_USER'),
         'password' => env('TEST_DB_PASSWORD'),
-        'database' => 'zxbingo',
+        'database' => env('TEST_DB_DATABASE', 'zxbingo'),
         'table' => ['devices', 'users'],
         'dir' => 'test/db/',
     ],

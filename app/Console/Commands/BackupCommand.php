@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\helpers\AliyunOss;
+use App\helpers\Functions;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
@@ -18,7 +19,7 @@ class BackupCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'skill-backup {app?}';
+    protected $signature = 'skill-backup {app?} {action?}';
 
     /**
      * The console command description.
@@ -49,12 +50,18 @@ class BackupCommand extends Command
     {
         //
         $appname = $this->argument('app');
+        $action = $this->argument('action');
         $this->backupConfig =  config('backup');
         $this->date =  Carbon::now()->format('Y-m-d');
         dump($this->date);
         if ($appname) {
             if (isset($this->backupConfig[$appname])) {
-                $this->mysqlBackup($this->backupConfig[$appname]);
+                if ($action == 'upload'){
+                    
+                }else {
+                    $this->mysqlBackup($this->backupConfig[$appname]);
+                }
+                
             }
         }
     }
@@ -85,6 +92,8 @@ class BackupCommand extends Command
             $tables = implode(' ', $table);
             if (!is_dir($this->localDir)) {
                 mkdir($this->localDir, 0777, true);
+            } else {
+                Functions::deleteDir($this->localDir);
             }
             $this->file =  $app['name'] . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
             $this->nodatafile = $app['name'] . '-no-data' . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
@@ -92,8 +101,8 @@ class BackupCommand extends Command
             $this->nodatafilePath = $this->localDir . $app['name'] . '-no-data' . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
             // if (empty($database) || empty($tables) )
             // dd("mysqldump -F -u$user -h$host -p$password $database > $file");
-            $fp = popen("mysqldump --column-statistics=0 --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
-            $fp = popen("mysqldump --column-statistics=0 --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
+            $fp = popen("mysqldump  --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
+            $fp = popen("mysqldump  --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
 
             $rs = '';
             while (!feof($fp)) {
