@@ -16,7 +16,7 @@ class Functions
     /**
      * 删除当前目录及其目录下的所有目录和文件
      * @param string $path 待删除的目录
-     * @note  $path路径结尾不要有斜杠/(例如:正确[$path='./static/image'],错误[$path='./static/image/'])
+     * @note  $path路径结尾要有斜杠/(例如:[$path='./static/image/'])
      */
     public static function deleteDir($path)
     {
@@ -29,7 +29,7 @@ class Functions
                 //排除目录中的当前目录(.)和上一级目录(..)
                 if ($dir != '.' && $dir != '..') {
                     //如果是目录则递归子目录，继续操作
-                    $sonDir = $path . '/' . $dir;
+                    $sonDir = $path  . $dir;
                     if (is_dir($sonDir)) {
                         //递归删除
                         static::deleteDir($sonDir);
