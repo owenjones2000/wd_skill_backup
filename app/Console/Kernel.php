@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command(BackupCommand::class,['bingoforcash'])->dailyAt('9:30')->runInBackground();
-        $schedule->command(BackupCommand::class,['solitairearena'])->dailyAt('6:15')->runInBackground();
+        $schedule->command(BackupCommand::class,['solitairearena'])->dailyAt('9:00')->runInBackground();
     }
 
     /**
