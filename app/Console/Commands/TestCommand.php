@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\helpers\AliyunOss;
 use Carbon\Carbon;
+use Google\Cloud\Storage\StorageClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -163,6 +164,19 @@ class TestCommand extends Command
         pclose($fp);
     }
 
+    public function test7()
+    {
+        $storage = new StorageClient([
+            'keyFilePath' => '/mnt/d/www/skills-backup/wide-hulling-326807-d739d2bbfee1.json',
+            'projectId' => 'wide-hulling-326807'
+        ]);
+
+        $bucket  = $storage->bucket('wdys-skills');
+        $object = $bucket->upload(
+            fopen('/mnt/d/www/skills-backup/storage/app/test/db/2021-09-26/test-no-data-2021-09-26-07-25-40.sql', 'r')
+        );
+        dd($object);
+    }
 
 
 

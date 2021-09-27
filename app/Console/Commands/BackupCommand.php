@@ -58,9 +58,10 @@ class BackupCommand extends Command
         if ($appname) {
             if (isset($this->backupConfig[$appname])) {
                 if ($action == 'upload') {
-                    $aliUpload = $this->aliyunBackup($this->backupConfig[$appname]);
+                    // $aliUpload = $this->aliyunBackup($this->backupConfig[$appname]);
                     // dump($aliUpload);
-                    $awsUpload = $this->awsBackup($this->backupConfig[$appname]);
+                    // $awsUpload = $this->awsBackup($this->backupConfig[$appname]);
+                    $googleUpload = $this->googleBackup($this->backupConfig[$appname]);
                 } else {
                     $this->mysqlBackup($this->backupConfig[$appname]);
                 }
@@ -211,7 +212,6 @@ class BackupCommand extends Command
             // $uploadFile = Storage::disk('s3')->putFileAs($app['dir'] . $this->date, new File($this->filePath), $this->file);
             $this->localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
             $buketDir = $app['dir'] . $this->date;
-
             if (is_dir($this->localDir)) {
                 $dirs = scandir($this->localDir);
                 foreach ($dirs as $dir) {
