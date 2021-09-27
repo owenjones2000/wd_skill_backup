@@ -58,9 +58,9 @@ class BackupCommand extends Command
         if ($appname) {
             if (isset($this->backupConfig[$appname])) {
                 if ($action == 'upload') {
-                    // $aliUpload = $this->aliyunBackup($this->backupConfig[$appname]);
+                    $aliUpload = $this->aliyunBackup($this->backupConfig[$appname]);
                     // dump($aliUpload);
-                    // $awsUpload = $this->awsBackup($this->backupConfig[$appname]);
+                    $awsUpload = $this->awsBackup($this->backupConfig[$appname]);
                     $googleUpload = $this->googleBackup($this->backupConfig[$appname]);
                 } else {
                     $this->mysqlBackup($this->backupConfig[$appname]);
@@ -78,6 +78,7 @@ class BackupCommand extends Command
         if ($local) {
             $aliUpload = $this->aliyunBackup($app);
             $awsUpload = $this->awsBackup($app);
+            $googleUpload = $this->googleBackup($app);
 
         }
     }
