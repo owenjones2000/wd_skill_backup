@@ -55,6 +55,7 @@ class BackupCommand extends Command
         $this->backupConfig =  config('backup');
         $this->date =  Carbon::now()->format('Y-m-d');
         dump($this->date);
+        Log::info('backup start');
         if ($appname) {
             if (isset($this->backupConfig[$appname])) {
                 if ($action == 'upload') {
@@ -67,6 +68,7 @@ class BackupCommand extends Command
                 }
             }
         }
+        Log::info('backup end');
     }
 
 
