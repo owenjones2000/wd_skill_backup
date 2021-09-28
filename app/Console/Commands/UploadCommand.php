@@ -8,20 +8,17 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\File;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class BackupCommand extends Command
+class UploadCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'skill-backup {app?} {action?}';
+    protected $signature = 'skill-upload {app?} {action?}';
 
     /**
      * The console command description.
@@ -55,7 +52,8 @@ class BackupCommand extends Command
         $action = $this->argument('action');
         $this->backupConfig =  config('backup');
         $this->date =  Carbon::now()->format('Y-m-d');
-        Log::info('backup start');
+        dump($this->date, $appname, $action);
+        Log::info('upload start');
         if ($appname) {
             if (isset($this->backupConfig[$appname])) {
                 if ($action == 'aliyun') {
@@ -64,101 +62,12 @@ class BackupCommand extends Command
                     $awsUpload = $this->awsBackup($this->backupConfig[$appname]);
                 } elseif ($action == 'google') {
                     $googleUpload = $this->googleBackup($this->backupConfig[$appname]);
-                }  elseif($action == 'backup'){
-                    $this->localBackup($this->backupConfig[$appname]);
-                }else {
-                    $this->mysqlBackup($this->backupConfig[$appname]);
                 }
             }
         }
-        Log::info('backup end');
+        Log::info('upload end');
     }
 
-
-
-    public function mysqlBackup($app)
-    {
-
-        $local = $this->localBackup($app);
-        if ($local) {
-            // Artisan::call('skill-upload', ['app' => $app['name'], 'action'=>'aliyun']);
-            // Artisan::call('skill-upload', ['app' => $app['name'], 'action'=>'aws']);
-            // Artisan::call('skill-upload', ['app' => $app['name'], 'action'=>'google']);
-           
-            $awsUpload = $this->awsBackup($app);
-            $googleUpload = $this->googleBackup($app);
-            $aliUpload = $this->aliyunBackup($app);
-
-
-        }
-    }
-
-    public function localBackup($app)
-    {
-        try {
-            $this->localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
-            $user = $app['user'];
-            $host = $app['host'];
-            $password = $app['password'];
-            $database = $app['database'];
-            $table = $app['table'];
-            $tables = implode(' ', $table);
-            if (!is_dir($this->localDir)) {
-                mkdir($this->localDir, 0777, true);
-            } else {
-                Functions::deleteDir($this->localDir);
-            }
-            $this->fileName =  $app['name'] . Carbon::now()->format('-Y-m-d-H-i-s');
-            $this->file =  $app['name'] . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
-            $this->nodatafile = $app['name'] . '-no-data' . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
-            $this->filePath = $this->localDir . $app['name'] . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
-            $this->nodatafilePath = $this->localDir . $app['name'] . '-no-data' . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
-            // if (empty($database) || empty($tables) )
-            // dd("mysqldump -F -u$user -h$host -p$password $database > $file");
-            if (App::environment('local')) {
-                if ($app['sub_table']) {
-                    foreach ($table as $key => $value) {
-                        $filePath = $this->localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
-                        $fp = popen("mysqldump  --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $value> {$filePath} ", "r");
-                    }
-                }else {
-                    $fp = popen("mysqldump   --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
-                    $fp = popen("mysqldump   --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
-                    $fp = popen("cd  {$this->localDir} && tar -czvf {$this->fileName}.tar.gz {$this->file} 2>&1 && rm {$this->filePath}", "r");
-                }
-                
-            } else {
-                if ($app['sub_table']) {
-                    foreach ($table as $key => $value) {
-                        $filePath = $this->localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
-                        $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $value> {$filePath} ", "r");
-                    }
-                } else {
-                    $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
-                    $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
-                    $fp = popen("cd  {$this->localDir} && tar -czvf {$this->fileName}.tar.gz {$this->file} 2>&1 && rm {$this->filePath}", "r");
-                }
-                
-            }
-
-
-            $rs = '';
-            while (!feof($fp)) {
-                $rs .= fread($fp, 1024);
-            }
-            pclose($fp);
-            // if (!file_exists($this->filePath) || !file_exists($this->nodatafilePath)) {
-            //     dump("backup {$app['name']} mysql fail ---" . $rs);
-            //     throw new Exception("backup {$app['name']} mysql fail ---" . $rs);
-            // }
-
-            return true;
-        } catch (Exception $e) {
-            Log::error($e);
-            dump($e);
-        }
-        return false;
-    }
 
     // public function aliyunBackup($app)
     // {
