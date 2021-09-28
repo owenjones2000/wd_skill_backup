@@ -64,6 +64,7 @@ return [
             "white_list_users",
         ],
         'dir' => 'bingoforcash/db/',
+        'sub_table' => true,
     ],
     'solitairearena' => [
         'name' => 'solitairearena',
@@ -102,6 +103,7 @@ return [
             'medals_rank_activities',
         ],
         'dir' => 'solitairearena/db/',
+        'sub_table' => true,
     ],
     'test' => [
         'name' => 'test',
@@ -111,6 +113,7 @@ return [
         'database' => env('TEST_DB_DATABASE', 'zxbingo'),
         'table' => ['devices', 'users'],
         'dir' => 'test/db/',
+        'sub_table' => true,
     ],
     // 'database' => [
 

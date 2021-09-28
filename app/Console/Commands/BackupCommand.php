@@ -107,11 +107,27 @@ class BackupCommand extends Command
             // if (empty($database) || empty($tables) )
             // dd("mysqldump -F -u$user -h$host -p$password $database > $file");
             if (App::environment('local')) {
-                $fp = popen("mysqldump   --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
-                $fp = popen("mysqldump   --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
+                if ($app['sub_table']) {
+                    foreach ($table as $key => $value) {
+                        $filePath = $this->localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
+                        $fp = popen("mysqldump  --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $value> {$filePath} ", "r");
+                    }
+                }else {
+                    $fp = popen("mysqldump   --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
+                    $fp = popen("mysqldump   --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
+                }
+                
             } else {
-                $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
-                $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
+                if ($app['sub_table']) {
+                    foreach ($table as $key => $value) {
+                        $filePath = $this->localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
+                        $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $value> {$filePath} ", "r");
+                    }
+                } else {
+                    $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
+                    $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
+                }
+                
             }
 
 
@@ -120,10 +136,10 @@ class BackupCommand extends Command
                 $rs .= fread($fp, 1024);
             }
             pclose($fp);
-            if (!file_exists($this->filePath) || !file_exists($this->nodatafilePath)) {
-                dump("backup {$app['name']} mysql fail ---" . $rs);
-                throw new Exception("backup {$app['name']} mysql fail ---" . $rs);
-            }
+            // if (!file_exists($this->filePath) || !file_exists($this->nodatafilePath)) {
+            //     dump("backup {$app['name']} mysql fail ---" . $rs);
+            //     throw new Exception("backup {$app['name']} mysql fail ---" . $rs);
+            // }
 
             return true;
         } catch (Exception $e) {
@@ -184,7 +200,6 @@ class BackupCommand extends Command
     public function awsBackup($app)
     {
         try {
-            // $uploadFile = Storage::disk('s3')->putFileAs($app['dir'] . $this->date, new File($this->filePath), $this->file);
             $this->localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
             $buketDir = $app['dir'] . $this->date;
 
@@ -212,7 +227,6 @@ class BackupCommand extends Command
     public function googleBackup($app)
     {
         try {
-            // $uploadFile = Storage::disk('s3')->putFileAs($app['dir'] . $this->date, new File($this->filePath), $this->file);
             $this->localDir = Storage::disk('local')->path($app['dir'] . $this->date) . '/';
             $buketDir = $app['dir'] . $this->date;
             if (is_dir($this->localDir)) {
