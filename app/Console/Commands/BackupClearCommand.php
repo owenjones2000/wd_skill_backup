@@ -42,9 +42,11 @@ class BackupClearCommand extends Command
     public function handle()
     {
         $date = $this->argument('date')?Carbon::parse($this->argument('date'))->format('Y-m-d') : Carbon::now()->subMonths(6)->format('Y-m-d');
-        Log::info('clear start');
+        Log::info('clear start'. $date);
+        dump($date);
+
         $this->clearBackup($date);
-        Log::info('clear end');
+        Log::info('clear end' . $date);
     }
 
     public function clearBackup($date)

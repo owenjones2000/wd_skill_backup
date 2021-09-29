@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\BackupClearCommand;
 use App\Console\Commands\BackupCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -28,6 +29,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command(BackupCommand::class,['bingoforcash'])->dailyAt('9:30')->runInBackground();
         $schedule->command(BackupCommand::class,['solitairearena'])->dailyAt('9:00')->runInBackground();
+        $schedule->command(BackupClearCommand::class)->dailyAt('8:00')->runInBackground();
     }
 
     /**
