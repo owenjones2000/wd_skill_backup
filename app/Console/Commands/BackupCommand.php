@@ -106,7 +106,7 @@ class BackupCommand extends Command
             if (!is_dir($this->localDir)) {
                 mkdir($this->localDir, 0777, true);
             } else {
-                Functions::deleteDir($this->localDir);
+                Functions::deleteDirsFile($this->localDir);
             }
             $this->fileName =  $app['name'] . Carbon::now()->format('-Y-m-d-H-i-s');
             $this->file =  $app['name'] . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
