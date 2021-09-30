@@ -212,7 +212,7 @@ class BackupCommand extends Command
                             dump($uploadFile);
                             if ($uploadFile) {
                                 $size = Functions::formatSize(filesize($sonDir));
-                                $message =  $this->successMessage($app, 'Google', $size, $app['dir'] . $this->date . '/' . pathinfo($sonDir)['basename']);
+                                $message =  $this->successMessage($app, 'Aliyun', $size, $app['dir'] . $this->date . '/' . pathinfo($sonDir)['basename']);
                                 $this->sendTextMessage($message);
                             }
                             Log::info($uploadFile);
