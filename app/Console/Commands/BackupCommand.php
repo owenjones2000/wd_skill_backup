@@ -6,6 +6,7 @@ use App\helpers\AliyunOss;
 use App\helpers\Functions;
 use Carbon\Carbon;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\App;
@@ -60,13 +61,18 @@ class BackupCommand extends Command
             if (isset($this->backupConfig[$appname])) {
                 if ($action == 'aliyun') {
                     $aliUpload = $this->aliyunBackup($this->backupConfig[$appname]);
-                }elseif($action == 'aws'){
+                } elseif ($action == 'aws') {
                     $awsUpload = $this->awsBackup($this->backupConfig[$appname]);
                 } elseif ($action == 'google') {
                     $googleUpload = $this->googleBackup($this->backupConfig[$appname]);
-                }  elseif($action == 'backup'){
+                } elseif ($action == 'backup') {
+                } elseif ($action == 'upload') {
+                    $awsUpload = $this->awsBackup($this->backupConfig[$appname]);
+                    $googleUpload = $this->googleBackup($this->backupConfig[$appname]);
+                    $aliUpload = $this->aliyunBackup($this->backupConfig[$appname]);
+                } elseif ($action == 'backup') {
                     $this->localBackup($this->backupConfig[$appname]);
-                }else {
+                } else {
                     $this->mysqlBackup($this->backupConfig[$appname]);
                 }
             }
@@ -84,12 +90,10 @@ class BackupCommand extends Command
             // Artisan::call('skill-upload', ['app' => $app['name'], 'action'=>'aliyun']);
             // Artisan::call('skill-upload', ['app' => $app['name'], 'action'=>'aws']);
             // Artisan::call('skill-upload', ['app' => $app['name'], 'action'=>'google']);
-           
+
             $awsUpload = $this->awsBackup($app);
             $googleUpload = $this->googleBackup($app);
             $aliUpload = $this->aliyunBackup($app);
-
-
         }
     }
 
@@ -121,12 +125,11 @@ class BackupCommand extends Command
                         $filePath = $this->localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
                         $fp = popen("mysqldump  --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $value> {$filePath} ", "r");
                     }
-                }else {
+                } else {
                     $fp = popen("mysqldump   --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
                     $fp = popen("mysqldump   --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
                     $fp = popen("cd  {$this->localDir} && tar -czvf {$this->fileName}.tar.gz {$this->file} 2>&1 && rm {$this->filePath}", "r");
                 }
-                
             } else {
                 if ($app['sub_table']) {
                     foreach ($table as $key => $value) {
@@ -138,7 +141,6 @@ class BackupCommand extends Command
                     $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
                     $fp = popen("cd  {$this->localDir} && tar -czvf {$this->fileName}.tar.gz {$this->file} 2>&1 && rm {$this->filePath}", "r");
                 }
-                
             }
 
 
@@ -206,8 +208,13 @@ class BackupCommand extends Command
                         $sonDir = $this->localDir . $dir;
                         if (!is_dir($sonDir)) {
 
-                            $uploadFile = AliyunOss::uploadFile($ossClient, $app['dir'] . $this->date.'/'. pathinfo($sonDir)['basename'], $sonDir);
+                            $uploadFile = AliyunOss::uploadFile($ossClient, $app['dir'] . $this->date . '/' . pathinfo($sonDir)['basename'], $sonDir);
                             dump($uploadFile);
+                            if ($uploadFile) {
+                                $size = Functions::formatSize(filesize($sonDir));
+                                $message =  $this->successMessage($app, 'Google', $size, $app['dir'] . $this->date . '/' . pathinfo($sonDir)['basename']);
+                                $this->sendTextMessage($message);
+                            }
                             Log::info($uploadFile);
                         }
                     }
@@ -216,7 +223,7 @@ class BackupCommand extends Command
             return true;
         } catch (Exception $e) {
             Log::error($e);
-            dump($e);
+            dump($e->getMessage());
         }
         return false;
     }
@@ -247,8 +254,14 @@ class BackupCommand extends Command
                     if ($dir != '.' && $dir != '..') {
                         $sonDir = $this->localDir . $dir;
                         if (!is_dir($sonDir)) {
+
                             $uploadFile = Storage::disk('s3')->putFileAs($app['dir'] . $this->date, new File($sonDir), pathinfo($sonDir)['basename']);
                             dump($uploadFile);
+                            if ($uploadFile) {
+                                $size = Functions::formatSize(filesize($sonDir));
+                                $message =  $this->successMessage($app, 'AWS', $size, $uploadFile);
+                                $this->sendTextMessage($message);
+                            }
                             Log::info($uploadFile);
                         }
                     }
@@ -258,7 +271,7 @@ class BackupCommand extends Command
             return true;
         } catch (Exception $e) {
             Log::error($e);
-            dump($e);
+            dump($e->getMessage());
         }
         return false;
     }
@@ -276,6 +289,11 @@ class BackupCommand extends Command
                         if (!is_dir($sonDir)) {
                             $uploadFile = Storage::disk('gcs')->putFileAs($app['dir'] . $this->date, new File($sonDir), pathinfo($sonDir)['basename']);
                             dump($uploadFile);
+                            if ($uploadFile) {
+                                $size = Functions::formatSize(filesize($sonDir));
+                                $message =  $this->successMessage($app, 'Google', $size, $uploadFile);
+                                $this->sendTextMessage($message);
+                            }
                             Log::info($uploadFile);
                         }
                     }
@@ -285,8 +303,37 @@ class BackupCommand extends Command
             return true;
         } catch (Exception $e) {
             Log::error($e);
-            dump($e);
+            dump($e->getMessage());
         }
         return false;
+    }
+
+    protected  function successMessage($app, $cloud, $size, $path)
+    {
+        $str = <<<heredoc
+        电竞备份 \n
+        {$app['name']} 上传 $cloud 完成 \n
+        路径 $path \n
+        大小 $size \n
+        heredoc;
+        return $str;
+    }
+
+    protected  function sendTextMessage($content = '', $at_all = false)
+    {
+
+        $data = [
+            'msgtype' => 'text',
+            'text'    => [
+                'content' => $content
+            ],
+        ];
+        if ($at_all) {
+            $data['text']['mentioned_list'] = ['@all'];
+        }
+        $client = new Client();
+        $client->request("POST", "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=4f6840d0-7a7d-4d3f-ab4d-d9d085941909", [
+            "json" => $data,
+        ]);
     }
 }
