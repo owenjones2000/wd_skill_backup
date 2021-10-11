@@ -120,6 +120,11 @@ return [
         'dir' => 'test/db/',
         'sub_table' => false,
     ],
+    'import' => [
+        'host' => '127.0.0.1',
+        'user' => env('IMPORT_DB_USER', 'root'),
+        'password' => env('IMPORT_DB_PASSWORD', 'fd2f909a7c34a235'),
+    ],
     // 'database' => [
 
     // ],

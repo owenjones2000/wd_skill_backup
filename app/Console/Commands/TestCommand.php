@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 use OSS\Core\OssException;
 
+use function PHPSTORM_META\type;
+
 class TestCommand extends Command
 {
     /**
@@ -178,6 +180,47 @@ class TestCommand extends Command
         dd($object);
     }
 
+    public function test8()
+    {
+        $app = config('backup')['solitairearena'];
+        $importConfig = config('backup')['import'];
+        $user = $importConfig['user'];
+        $host = $importConfig['host'];
+        $password = $importConfig['password'];
+        $localDir = Storage::disk('local')->path($app['dir']) ;
+        dump($localDir);
+        $cloudDir = $app['dir']. Carbon::now()->subDays()->format('Y-m-d').'/';
+        $files = Storage::disk('s3')->allFiles($cloudDir);
+        $dataTables = [];
+        $nodataTables = [];
+        foreach ($files as $key => $value) {
+            if (stripos($value, 'no-data')===false){
+                $dataTables[] = $value;
+            }else {
+                $nodataTables[] = $value;
+            }
+        }
+        sort($dataTables);
+        sort($nodataTables); 
+        $dataTable = array_pop($dataTables);
+        $nodataTable = array_pop($nodataTables);
+        dump($dataTable, $nodataTable);
+        // $resource = Storage::disk('s3')->readStream($nodataTable);
+        // $downloadNodata =  Storage::disk('local')->put($app['dir'] .  Carbon::now()->format('Y-m-d').'-no-data.sql', Storage::disk('s3')->readStream($nodataTable));
+        $compressdfilePath = $app['dir'] .  Carbon::now()->format('Y-m-d') . '.tar.gz';
+        $compressdfileName =  Carbon::now()->format('Y-m-d') . '.tar.gz';
+        // $downloaddata =  Storage::disk('local')->put($compressdfilePath, Storage::disk('s3')->readStream($dataTable));
+        $localNodataFileName = Storage::disk('local')->path($app['dir'] .  Carbon::now()->format('Y-m-d') . '-no-data.sql');
+        exec("cd $localDir && tar -zxvf $compressdfileName" , $output, $code);
+        if ($code == 0){
+            $localdataFilePath = Storage::disk('local')->path($app['dir'] .  $output[0]);
+        }
+        dd($localdataFilePath);
+ 
+        // exec("mysql -u$user -h$host -p$password < {$localNodataFileName}", $output, $code);
+        // exec("mysql -u$user -h$host -p$password < {$localdataFilePath}", $output, $code);
+        dump($output, $code);
+    }
 
 
 }
