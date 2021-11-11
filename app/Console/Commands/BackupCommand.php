@@ -318,7 +318,7 @@ class BackupCommand extends Command
         heredoc;
         return $str;
     }
-
+ 
     protected  function sendTextMessage($content = '', $at_all = false)
     {
 

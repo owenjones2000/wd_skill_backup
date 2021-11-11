@@ -106,6 +106,8 @@ return [
             'w4_new_charge_entry_group',
             'w4_new_charge_routine_group',
             'w4_new_charge_operate_group',
+            'infinite_multi_game',
+            'pay_config',
         ],
         'dir' => 'solitairearena/db/',
         'sub_table' => false,
