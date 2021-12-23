@@ -22,7 +22,7 @@ class BackupCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'skill-backup {app?} {action?}';
+    protected $signature = 'skill-backup {app?} {action?} {date?}';
 
     /**
      * The console command description.
@@ -55,17 +55,16 @@ class BackupCommand extends Command
         $appname = $this->argument('app');
         $action = $this->argument('action');
         $this->backupConfig =  config('backup');
-        $this->date =  Carbon::now()->format('Y-m-d');
+        $this->date =  $this->argument('date')?Carbon::parse($this->argument('date'))->format('Y-m-d'):Carbon::now()->format('Y-m-d');
         Log::info('backup start');
         if ($appname) {
-            if (isset($this->backupConfig[$appname])) {
+            if (isset($this->backupConfig[$appname])) {  
                 if ($action == 'aliyun') {
                     $aliUpload = $this->aliyunBackup($this->backupConfig[$appname]);
                 } elseif ($action == 'aws') {
                     $awsUpload = $this->awsBackup($this->backupConfig[$appname]);
                 } elseif ($action == 'google') {
                     $googleUpload = $this->googleBackup($this->backupConfig[$appname]);
-                } elseif ($action == 'backup') {
                 } elseif ($action == 'upload') {
                     $awsUpload = $this->awsBackup($this->backupConfig[$appname]);
                     $googleUpload = $this->googleBackup($this->backupConfig[$appname]);
