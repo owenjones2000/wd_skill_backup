@@ -105,7 +105,9 @@ class BackupCommand extends Command
             $password = $app['password'];
             $database = $app['database'];
             $table = $app['table'];
-            $tables = implode(' ', $table);
+            $skipTable = $app['skip'];
+            $realTable = array_diff($table, $skipTable);
+            $tables = implode(' ', $realTable);
             if (!is_dir($this->localDir)) {
                 mkdir($this->localDir, 0777, true);
             } else {
