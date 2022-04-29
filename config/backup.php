@@ -208,6 +208,9 @@ return [
             'league_rank_upgrade',
             'league_rank_config',  
         ],
+        'skip'  => [
+
+        ],
         'dir' => 'solitairearena/db/',
         'sub_table' => false,
     ],
@@ -260,6 +263,7 @@ return [
             'x_users_param_4',
             'x_users_total_4',
         ],
+        'skip'  => [],
         'dir' => 'bingowinner/db/',
         'sub_table' => false,
     ],
@@ -270,6 +274,7 @@ return [
         'password' => env('TEST_DB_PASSWORD'),
         'database' => env('TEST_DB_DATABASE', 'zxbingo'),
         'table' => ['devices', 'users'],
+        'skip'  => [],
         'dir' => 'test/db/',
         'sub_table' => false,
     ],
