@@ -262,6 +262,7 @@ return [
             'words',
             'x_users_param_4',
             'x_users_total_4',
+            'activity_record',
         ],
         'skip'  => [],
         'dir' => 'bingowinner/db/',
