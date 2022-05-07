@@ -27,10 +27,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command(BackupCommand::class,['bingoforcash'])->dailyAt('9:40')->runInBackground();
+        
         $schedule->command(BackupCommand::class,['solitairearena'])->dailyAt('9:00')->runInBackground();
-        $schedule->command(BackupCommand::class,['bingowinner'])->dailyAt('9:10')->runInBackground();
-        $schedule->command(BackupCommand::class,['bingogo'])->dailyAt('9:20')->runInBackground();
+        $schedule->command(BackupCommand::class,['bingowinner'])->dailyAt('9:05')->runInBackground();
+        $schedule->command(BackupCommand::class,['bingogo'])->dailyAt('9:10')->runInBackground();
+        $schedule->command(BackupCommand::class, ['bingoforcash'])->dailyAt('9:30')->runInBackground();
         $schedule->command(BackupClearCommand::class)->dailyAt('8:00')->runInBackground();
     }
 
