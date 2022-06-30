@@ -248,6 +248,7 @@ return [
             'users_coins',
             'users_email',
             'users_info',
+            'users_login',
             'w4_level_configs',
             'w4_new_charge_activity',
             'w4_new_charge_entry_group',
