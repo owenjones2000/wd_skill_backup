@@ -55,10 +55,10 @@ class BackupCommand extends Command
         $appname = $this->argument('app');
         $action = $this->argument('action');
         $this->backupConfig =  config('backup');
-        $this->date =  $this->argument('date')?Carbon::parse($this->argument('date'))->format('Y-m-d'):Carbon::now()->format('Y-m-d');
+        $this->date =  $this->argument('date') ? Carbon::parse($this->argument('date'))->format('Y-m-d') : Carbon::now()->format('Y-m-d');
         Log::info('backup start');
         if ($appname) {
-            if (isset($this->backupConfig[$appname])) {  
+            if (isset($this->backupConfig[$appname])) {
                 if ($action == 'aliyun') {
                     $aliUpload = $this->aliyunBackup($this->backupConfig[$appname]);
                 } elseif ($action == 'aws') {
@@ -319,7 +319,7 @@ class BackupCommand extends Command
         heredoc;
         return $str;
     }
- 
+
     protected  function sendTextMessage($content = '', $at_all = false)
     {
 
