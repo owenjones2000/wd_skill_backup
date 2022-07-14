@@ -124,10 +124,10 @@ class BackupCommand extends Command
                 if ($app['sub_table']) {
                     foreach ($table as $key => $value) {
                         $filePath = $this->localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
-                        $fp = popen("mysqldump  --set-gtid-purged=off --single-transaction --skip-opt --quick -u$user -h$host -p$password -B $database --tables $value> {$filePath} ", "r");
+                        $fp = popen("mysqldump  --set-gtid-purged=off --single-transaction  --quick -u$user -h$host -p$password -B $database --tables $value> {$filePath} ", "r");
                     }
                 } else {
-                    $fp = popen("mysqldump   --set-gtid-purged=off --single-transaction --skip-opt --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
+                    $fp = popen("mysqldump   --set-gtid-purged=off --single-transaction  --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
                     $fp = popen("mysqldump   --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
                     $fp = popen("cd  {$this->localDir} && tar -czvf {$this->fileName}.tar.gz {$this->file} 2>&1 && rm {$this->filePath}", "r");
                 }
@@ -135,10 +135,10 @@ class BackupCommand extends Command
                 if ($app['sub_table']) {
                     foreach ($table as $key => $value) {
                         $filePath = $this->localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
-                        $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off --single-transaction --skip-opt --quick -u$user -h$host -p$password -B $database --tables $value> {$filePath} ", "r");
+                        $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off --single-transaction  --quick -u$user -h$host -p$password -B $database --tables $value> {$filePath} ", "r");
                     }
                 } else {
-                    $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off --single-transaction --skip-opt --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
+                    $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off --single-transaction  --quick -u$user -h$host -p$password -B $database --tables $tables> {$this->filePath} ", "r");
                     $fp = popen("mysqldump  --column-statistics=0 --set-gtid-purged=off -d -u$user -h$host -p$password -B $database > {$this->nodatafilePath}", "r");
                     $fp = popen("cd  {$this->localDir} && tar -czvf {$this->fileName}.tar.gz {$this->file} 2>&1 && rm {$this->filePath}", "r");
                 }
