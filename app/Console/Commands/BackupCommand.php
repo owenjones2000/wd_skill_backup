@@ -77,7 +77,7 @@ class BackupCommand extends Command
             }
         }else {
             foreach ($this->backupConfig as $key => $value) {
-                $this->mysqlBackup($this->backupConfig[$appname]);
+                $this->mysqlBackup($this->backupConfig[$key]);
             }
         }
         Log::info('backup end');
