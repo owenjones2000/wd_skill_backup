@@ -152,12 +152,12 @@ class TestCommand extends Command
         $database = $app['database'];
         $table = $app['table'];
         $localDir = Storage::disk('local')->path($app['dir'] . Carbon::now()->format('Y-m-d')) . '/';
-        
+
         foreach ($table as $key => $value) {
             $this->filePath = $localDir . $value . Carbon::now()->format('-Y-m-d-H-i-s') . '.sql';
             $fp = popen("mysqldump --column-statistics=0 --set-gtid-purged=off --single-transaction --quick -u$user -h$host -p$password -B $database --tables $value> {$this->filePath} ", "r");
         }
-        
+
 
         $rs = '';
         while (!feof($fp)) {
@@ -187,21 +187,21 @@ class TestCommand extends Command
         $user = $importConfig['user'];
         $host = $importConfig['host'];
         $password = $importConfig['password'];
-        $localDir = Storage::disk('local')->path($app['dir']) ;
+        $localDir = Storage::disk('local')->path($app['dir']);
         dump($localDir);
-        $cloudDir = $app['dir']. Carbon::now()->subDays()->format('Y-m-d').'/';
+        $cloudDir = $app['dir'] . Carbon::now()->subDays()->format('Y-m-d') . '/';
         $files = Storage::disk('s3')->allFiles($cloudDir);
         $dataTables = [];
         $nodataTables = [];
         foreach ($files as $key => $value) {
-            if (stripos($value, 'no-data')===false){
+            if (stripos($value, 'no-data') === false) {
                 $dataTables[] = $value;
-            }else {
+            } else {
                 $nodataTables[] = $value;
             }
         }
         sort($dataTables);
-        sort($nodataTables); 
+        sort($nodataTables);
         $dataTable = array_pop($dataTables);
         $nodataTable = array_pop($nodataTables);
         dump($dataTable, $nodataTable);
@@ -211,16 +211,14 @@ class TestCommand extends Command
         $compressdfileName =  Carbon::now()->format('Y-m-d') . '.tar.gz';
         // $downloaddata =  Storage::disk('local')->put($compressdfilePath, Storage::disk('s3')->readStream($dataTable));
         $localNodataFileName = Storage::disk('local')->path($app['dir'] .  Carbon::now()->format('Y-m-d') . '-no-data.sql');
-        exec("cd $localDir && tar -zxvf $compressdfileName" , $output, $code);
-        if ($code == 0){
+        exec("cd $localDir && tar -zxvf $compressdfileName", $output, $code);
+        if ($code == 0) {
             $localdataFilePath = Storage::disk('local')->path($app['dir'] .  $output[0]);
         }
         dd($localdataFilePath);
- 
+
         // exec("mysql -u$user -h$host -p$password < {$localNodataFileName}", $output, $code);
         // exec("mysql -u$user -h$host -p$password < {$localdataFilePath}", $output, $code);
         dump($output, $code);
     }
-
-
 }
